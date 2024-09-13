@@ -105,8 +105,8 @@ export default {
       isLoading: auth0.isLoading,
       user: auth0.user,
       login() {
-        auth0.loginWithRedirect();
-        //auth0.loginWithPopup();
+        //auth0.loginWithRedirect();
+        auth0.loginWithPopup();
       },
       logout() {
         auth0.logout({
