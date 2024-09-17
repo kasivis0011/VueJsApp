@@ -27,7 +27,9 @@
                 id="qsLoginBtn"
                 class="btn btn-primary btn-margin"
                 @click.prevent="login"
-              >Login</button>
+              >
+                Login
+              </button>
             </li>
 
             <li class="nav-item dropdown" v-if="isAuthenticated">
@@ -80,10 +82,9 @@
               <font-awesome-icon icon="user" class="mr-3" />
               <router-link to="/profile">Profile</router-link>
             </li>
-
             <li>
               <font-awesome-icon icon="power-off" class="mr-3" />
-              <a id="qsLogoutBtn" href="#" class @click.prevent="logout">Log out</a>
+              <a id="qsLogoutBtn" href="#" @click.prevent="logout">Log out</a>
             </li>
           </ul>
         </div>
@@ -93,29 +94,48 @@
 </template>
 
 <script lang="ts">
+import { computed } from 'vue';
 import { useAuth0 } from '@auth0/auth0-vue';
+import { PopupCancelledError } from '@auth0/auth0-spa-js';
 
 export default {
   name: "NavBar",
   setup() {
     const auth0 = useAuth0();
-    
-    return {
-      isAuthenticated: auth0.isAuthenticated,
-      isLoading: auth0.isLoading,
-      user: auth0.user,
-      login() {
-        //auth0.loginWithRedirect();
-        auth0.loginWithPopup();
-      },
-      logout() {
-        auth0.logout({
-          logoutParams: {
-            returnTo: window.location.origin
-          }
-        });
+
+    const isAuthenticated = computed(() => auth0.isAuthenticated.value);
+    const isLoading = computed(() => auth0.isLoading.value);
+    const user = computed(() => auth0.user.value);
+
+    const login = async () => {
+      try {
+        await auth0.loginWithPopup();
+      } catch (error) {
+        if (error instanceof PopupCancelledError) {
+          console.warn("Popup was closed before login was completed.");
+          // Optionally, show a user-friendly message or take some action
+        } else {
+          console.error("Login failed:", error);
+          // Optionally, show a user-friendly error message
+        }
       }
-    }
+    };
+
+    const logout = () => {
+      auth0.logout({
+        logoutParams: {
+          returnTo: window.location.origin
+        }
+      });
+    };
+
+    return {
+      isAuthenticated,
+      isLoading,
+      user,
+      login,
+      logout
+    };
   }
 };
 </script>
