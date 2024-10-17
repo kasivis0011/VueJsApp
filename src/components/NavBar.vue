@@ -114,8 +114,10 @@ export default {
         if (error instanceof PopupCancelledError) {
           console.warn("Popup was closed before login was completed.");
           // Optionally, show a user-friendly message or take some action
+          error.popup.close();
         } else {
           console.error("Login failed:", error);
+          error.popup.close();
           // Optionally, show a user-friendly error message
         }
       }
